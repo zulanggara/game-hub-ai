@@ -1,23 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { OdinSetup } from "./components/OdinSetup";
-import { LocalOdinTable, type OdinConfig } from "./components/LocalOdinTable";
-import { OdinRoomLobby } from "./components/OdinRoomLobby";
-import { useProfile } from "../../lib/profile";
 import { useGameTheme } from "../../lib/theme";
+import { useProfile } from "../../lib/profile";
+import { TactaSetup } from "./components/TactaSetup";
+import { LocalTactaTable, type TactaConfig } from "./components/LocalTactaTable";
+import { TactaRoomLobby } from "./components/TactaRoomLobby";
 
 type Stage = "setup" | "local" | "online";
 
-export function OdinPage() {
-  useGameTheme("odin");
+export function TactaPage() {
+  useGameTheme("tacta");
   const [stage, setStage] = useState<Stage>("setup");
-  const [config, setConfig] = useState<OdinConfig | null>(null);
+  const [config, setConfig] = useState<TactaConfig | null>(null);
   const { recordResult } = useProfile();
   const navigate = useNavigate();
 
   if (stage === "setup") {
     return (
-      <OdinSetup
+      <TactaSetup
         onStart={(c) => {
           setConfig(c);
           setStage("local");
@@ -29,18 +29,18 @@ export function OdinPage() {
 
   if (stage === "online") {
     return (
-      <OdinRoomLobby
+      <TactaRoomLobby
         onExit={() => setStage("setup")}
-        onGameOver={(result) => recordResult("odin", result)}
+        onGameOver={(result) => recordResult("tacta", result)}
       />
     );
   }
 
   return (
-    <LocalOdinTable
+    <LocalTactaTable
       config={config!}
       onExit={() => navigate("/")}
-      onGameOver={(result) => recordResult("odin", result)}
+      onGameOver={(result) => recordResult("tacta", result)}
     />
   );
 }

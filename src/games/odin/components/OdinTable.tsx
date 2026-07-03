@@ -14,7 +14,8 @@ export interface OdinTableViewProps {
   controlledIds: string[];
   /** id whose result is recorded against the site profile */
   primaryId: string;
-  botDifficulty: BotDifficulty;
+  /** a single difficulty for local bot mode, or a per-bot lookup for online rooms */
+  botDifficulty: BotDifficulty | ((botId: string) => BotDifficulty);
   onExit: () => void;
   onGameOver: (result: { won: boolean; score: number }) => void;
 }
@@ -52,7 +53,9 @@ export function OdinTableView({
       const current = state.players.find((p) => p.id === currentId);
       if (current && current.kind === "bot") {
         const t = setTimeout(() => {
-          const decision = botDecide(state, current.id, botDifficulty);
+          const difficulty =
+            typeof botDifficulty === "function" ? botDifficulty(current.id) : botDifficulty;
+          const decision = botDecide(state, current.id, difficulty);
           if (decision.action === "pass") {
             dispatch({ type: "PASS", playerId: current.id });
           } else {

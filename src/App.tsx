@@ -6,7 +6,9 @@ import { SiteHeader } from "./components/SiteHeader";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Hub } from "./pages/Hub";
 import { OdinPage } from "./games/odin/OdinPage";
+import { TactaPage } from "./games/tacta/TactaPage";
 import "./games/odin/index";
+import "./games/tacta/index";
 
 function App() {
   return (
@@ -19,6 +21,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Hub />} />
                 <Route path="/play/odin" element={<OdinPage />} />
+                <Route path="/play/tacta" element={<TactaPage />} />
               </Routes>
             </ErrorBoundary>
           </HashRouter>

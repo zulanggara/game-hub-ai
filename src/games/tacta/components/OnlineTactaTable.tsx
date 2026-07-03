@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { OdinTableView } from "./OdinTable";
-import { subscribeRoom, sendRoomAction, type RoomDoc } from "../online/room";
-import type { Action } from "../engine/reducer";
+import { TactaTableView } from "./TactaTable";
+import { subscribeTactaRoom, sendTactaRoomAction, type TactaRoomDoc } from "../online/room";
+import type { TactaAction } from "../engine/reducer";
 
-export function OnlineOdinTable({
+export function OnlineTactaTable({
   roomCode,
   primaryId,
   onExit,
@@ -14,9 +14,9 @@ export function OnlineOdinTable({
   onExit: () => void;
   onGameOver: (result: { won: boolean; score: number }) => void;
 }) {
-  const [room, setRoom] = useState<RoomDoc | null>(null);
+  const [room, setRoom] = useState<TactaRoomDoc | null>(null);
 
-  useEffect(() => subscribeRoom(roomCode, setRoom), [roomCode]);
+  useEffect(() => subscribeTactaRoom(roomCode, setRoom), [roomCode]);
 
   if (!room?.state) {
     return (
@@ -27,18 +27,16 @@ export function OnlineOdinTable({
   }
 
   const state = room.state;
-  const bots = room.bots ?? {};
-  const dispatch = (action: Action) => {
-    void sendRoomAction(roomCode, state, action);
+  const dispatch = (action: TactaAction) => {
+    void sendTactaRoomAction(roomCode, state, action);
   };
 
   return (
-    <OdinTableView
+    <TactaTableView
       state={state}
       dispatch={dispatch}
       controlledIds={[primaryId]}
       primaryId={primaryId}
-      botDifficulty={(botId) => bots[botId]?.difficulty ?? "raider"}
       onExit={onExit}
       onGameOver={onGameOver}
     />

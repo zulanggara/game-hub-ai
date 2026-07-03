@@ -42,3 +42,18 @@ export function useTheme() {
   if (!ctx) throw new Error("useTheme must be used within ThemeProvider");
   return ctx;
 }
+
+/**
+ * Tags the document root with the active game's id so index.css can swap
+ * accent variables (see `[data-game="tacta"]`), giving each game its own
+ * atmosphere on top of the shared dark/light chrome. Clears on unmount so
+ * leaving the game page reverts to the neutral Hall of Games theme.
+ */
+export function useGameTheme(gameId: string) {
+  useEffect(() => {
+    document.documentElement.dataset.game = gameId;
+    return () => {
+      delete document.documentElement.dataset.game;
+    };
+  }, [gameId]);
+}

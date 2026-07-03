@@ -1,30 +1,24 @@
 import { useEffect, useState } from "react";
 import { useProfile } from "../../../lib/profile";
 import { isFirebaseConfigured } from "../../../lib/firebase";
+import { getClientId } from "../../../lib/clientId";
 import {
-  addBot,
-  createRoom,
-  deleteRoom,
-  getClientId,
-  joinRoom,
-  leaveRoomLobby,
-  removeBot,
-  startRoomGame,
-  subscribeRoom,
-  type RoomDoc,
+  addTactaBot,
+  createTactaRoom,
+  deleteTactaRoom,
+  joinTactaRoom,
+  leaveTactaRoomLobby,
+  removeTactaBot,
+  startTactaRoomGame,
+  subscribeTactaRoom,
+  type TactaRoomDoc,
 } from "../online/room";
-import type { NewPlayerSpec } from "../engine/reducer";
-import type { BotDifficulty } from "../engine/bot";
-import { OnlineOdinTable } from "./OnlineOdinTable";
-import styles from "./OdinRoomLobby.module.css";
+import type { NewTactaPlayerSpec } from "../engine/reducer";
+import { PLAYER_COLORS } from "../palette";
+import { OnlineTactaTable } from "./OnlineTactaTable";
+import styles from "../../odin/components/OdinRoomLobby.module.css";
 
 type Mode = "menu" | "create" | "join";
-
-const DIFFICULTY_LABEL: Record<BotDifficulty, string> = {
-  novice: "Pemula",
-  raider: "Perampok",
-  jarl: "Jarl",
-};
 
 function errorMessage(e: unknown): string {
   if (e instanceof Error && e.message) return e.message;
@@ -32,9 +26,6 @@ function errorMessage(e: unknown): string {
   return "Terjadi kesalahan tak terduga saat menghubungi server room. Coba lagi.";
 }
 
-/** navigator.clipboard also requires a secure context (HTTPS/localhost) and
- * silently fails over plain-HTTP LAN access — fall back to a hidden
- * textarea + execCommand so "Salin Kode" still works from a phone on WiFi. */
 function copyToClipboard(text: string): boolean {
   if (navigator.clipboard?.writeText) {
     navigator.clipboard.writeText(text).catch(() => {});
@@ -56,7 +47,7 @@ function copyToClipboard(text: string): boolean {
   }
 }
 
-export function OdinRoomLobby({
+export function TactaRoomLobby({
   onExit,
   onGameOver,
 }: {
@@ -68,16 +59,15 @@ export function OdinRoomLobby({
 
   const [mode, setMode] = useState<Mode>("menu");
   const [roomCode, setRoomCode] = useState<string | null>(null);
-  const [room, setRoom] = useState<RoomDoc | null>(null);
+  const [room, setRoom] = useState<TactaRoomDoc | null>(null);
   const [joinInput, setJoinInput] = useState("");
-  const [scoreLimit, setScoreLimit] = useState(15);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!roomCode) return;
-    return subscribeRoom(roomCode, setRoom);
+    return subscribeTactaRoom(roomCode, setRoom);
   }, [roomCode]);
 
   if (!isFirebaseConfigured) {
@@ -86,10 +76,8 @@ export function OdinRoomLobby({
         <div className={styles.panel}>
           <h2 className={styles.title}>Room Online Belum Aktif</h2>
           <p className={styles.subtitle}>
-            Fitur ini butuh backend Firebase yang belum dikonfigurasi di proyek ini. Buat
-            project Firebase (gratis), aktifkan Realtime Database, lalu isi kredensialnya
-            di file <code>.env.local</code> — lihat <code>.env.example</code> untuk daftar
-            variabel yang dibutuhkan. Setelah itu restart <code>npm run dev</code>.
+            Fitur ini butuh backend Firebase yang belum dikonfigurasi di proyek ini. Lihat{" "}
+            <code>.env.example</code> di root proyek untuk cara mengaktifkannya.
           </p>
           <button className={styles.backBtn} onClick={onExit}>
             ‹ Kembali
@@ -101,11 +89,9 @@ export function OdinRoomLobby({
 
   function handleExit() {
     if (roomCode && room?.status === "lobby") {
-      leaveRoomLobby(roomCode).catch(() => {});
+      leaveTactaRoomLobby(roomCode).catch(() => {});
     } else if (roomCode && room?.state?.phase === "game-over") {
-      // No TTL on Realtime Database — clean up finished rooms ourselves
-      // instead of leaving them behind forever.
-      deleteRoom(roomCode).catch(() => {});
+      deleteTactaRoom(roomCode).catch(() => {});
     }
     onExit();
   }
@@ -114,7 +100,7 @@ export function OdinRoomLobby({
     setBusy(true);
     setError(null);
     try {
-      const code = await createRoom(username ?? "Tuan Rumah", scoreLimit);
+      const code = await createTactaRoom(username ?? "Tuan Rumah");
       setRoomCode(code);
     } catch (e) {
       setError(errorMessage(e));
@@ -131,24 +117,8 @@ export function OdinRoomLobby({
     setBusy(true);
     setError(null);
     try {
-      await joinRoom(code, username ?? "Pemain");
+      await joinTactaRoom(code, username ?? "Pemain");
       setRoomCode(code);
-    } catch (e) {
-      setError(errorMessage(e));
-    }
-    setBusy(false);
-  }
-
-  async function handleStart() {
-    if (!roomCode || !room) return;
-    const players = Object.entries(room.players ?? {}).map(([id, p]) => ({ id, ...p, kind: "human" as const }));
-    const bots = Object.entries(room.bots ?? {}).map(([id, b]) => ({ id, ...b, kind: "bot" as const }));
-    const specs: NewPlayerSpec[] = [...players, ...bots]
-      .sort((a, b) => a.seat - b.seat)
-      .map((p) => ({ id: p.id, name: p.name, kind: p.kind }));
-    setBusy(true);
-    try {
-      await startRoomGame(roomCode, specs, room.scoreLimit);
     } catch (e) {
       setError(errorMessage(e));
     }
@@ -160,7 +130,28 @@ export function OdinRoomLobby({
     const botNumber = Object.keys(room.bots ?? {}).length + 1;
     setBusy(true);
     try {
-      await addBot(roomCode, `Draugr ${botNumber}`, "raider");
+      await addTactaBot(roomCode, `AI Tacta ${botNumber}`);
+    } catch (e) {
+      setError(errorMessage(e));
+    }
+    setBusy(false);
+  }
+
+  async function handleStart() {
+    if (!roomCode || !room) return;
+    const players = Object.entries(room.players ?? {}).map(([id, p]) => ({ id, ...p, kind: "human" as const }));
+    const bots = Object.entries(room.bots ?? {}).map(([id, b]) => ({ id, ...b, kind: "bot" as const }));
+    const specs: NewTactaPlayerSpec[] = [...players, ...bots]
+      .sort((a, b) => a.seat - b.seat)
+      .map((p, i) => ({
+        id: p.id,
+        name: p.name,
+        kind: p.kind,
+        color: PLAYER_COLORS[i % PLAYER_COLORS.length].key,
+      }));
+    setBusy(true);
+    try {
+      await startTactaRoomGame(roomCode, specs);
     } catch (e) {
       setError(errorMessage(e));
     }
@@ -169,7 +160,7 @@ export function OdinRoomLobby({
 
   if (roomCode && room?.status === "playing" && room.state) {
     return (
-      <OnlineOdinTable
+      <OnlineTactaTable
         roomCode={roomCode}
         primaryId={clientId}
         onExit={handleExit}
@@ -215,11 +206,11 @@ export function OdinRoomLobby({
             {bots.map(([id, b]) => (
               <li key={id} className={styles.playerRow}>
                 {b.name}
-                <span className={styles.hostTag}>{DIFFICULTY_LABEL[b.difficulty]}</span>
+                <span className={styles.hostTag}>AI</span>
                 {isHost && (
                   <button
                     className={styles.removeBotBtn}
-                    onClick={() => removeBot(roomCode, id).catch(() => {})}
+                    onClick={() => removeTactaBot(roomCode, id).catch(() => {})}
                     aria-label={`Hapus ${b.name}`}
                   >
                     ×
@@ -232,13 +223,9 @@ export function OdinRoomLobby({
           {isHost ? (
             <>
               <button className={styles.addBotBtn} disabled={total >= 6 || busy} onClick={handleAddBot}>
-                + Tambah Bot Draugr
+                + Tambah AI Tacta
               </button>
-              <button
-                className={styles.primaryBtn}
-                disabled={total < 2 || busy}
-                onClick={handleStart}
-              >
+              <button className={styles.primaryBtn} disabled={total < 2 || busy} onClick={handleStart}>
                 {total < 2 ? "Menunggu peserta lain..." : "Mulai Permainan →"}
               </button>
               <p className={styles.waitNote}>Minimal 2 peserta (manusia/bot), maksimal 6.</p>
@@ -277,22 +264,9 @@ export function OdinRoomLobby({
         )}
 
         {mode === "create" && (
-          <>
-            <div className={styles.field}>
-              <span className={styles.label}>Batas Skor</span>
-              <input
-                className={styles.input}
-                type="number"
-                min={5}
-                max={30}
-                value={scoreLimit}
-                onChange={(e) => setScoreLimit(Number(e.target.value))}
-              />
-            </div>
-            <button className={styles.primaryBtn} disabled={busy} onClick={handleCreate}>
-              {busy ? "Membuat room..." : "Buat Room →"}
-            </button>
-          </>
+          <button className={styles.primaryBtn} disabled={busy} onClick={handleCreate}>
+            {busy ? "Membuat room..." : "Buat Room →"}
+          </button>
         )}
 
         {mode === "join" && (

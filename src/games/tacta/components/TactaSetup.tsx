@@ -2,30 +2,24 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useProfile } from "../../../lib/profile";
 import { modeLabels, type GameMode } from "../../../lib/gameRegistry";
-import { OdinIllustration } from "../Illustration";
-import type { BotDifficulty } from "../engine/bot";
-import type { OdinConfig } from "./LocalOdinTable";
-import styles from "./OdinSetup.module.css";
-
-const DIFFICULTIES: { id: BotDifficulty; label: string }[] = [
-  { id: "novice", label: "Pemula" },
-  { id: "raider", label: "Perampok" },
-  { id: "jarl", label: "Jarl" },
-];
-
-const MODE_DESCRIPTIONS: Record<GameMode, string> = {
-  single: "Berlatih sendiri melawan meja kosong untuk memahami alur permainan.",
-  bot: "Adu strategi melawan Draugr AI dengan tingkat kesulitan yang bisa diatur.",
-  multiplayer: "Bermain bersama teman — hotseat di satu perangkat, atau lewat room online.",
-};
+import { TactaIllustration } from "../Illustration";
+import { PLAYER_COLORS } from "../palette";
+import type { TactaConfig } from "./LocalTactaTable";
+import styles from "./TactaSetup.module.css";
 
 type MultiKind = "hotseat" | "online";
 
-export function OdinSetup({
+const MODE_DESCRIPTIONS: Record<GameMode, string> = {
+  single: "Berlatih sendiri melawan satu AI untuk memahami cara menutup dan bertahan.",
+  bot: "Kuasai papan melawan beberapa AI Tacta sekaligus.",
+  multiplayer: "Bermain bersama teman — hotseat di satu perangkat, atau lewat room online.",
+};
+
+export function TactaSetup({
   onStart,
   onStartOnline,
 }: {
-  onStart: (config: OdinConfig) => void;
+  onStart: (config: TactaConfig) => void;
   onStartOnline: () => void;
 }) {
   const { username } = useProfile();
@@ -33,7 +27,6 @@ export function OdinSetup({
 
   const [mode, setMode] = useState<GameMode>("bot");
   const [botCount, setBotCount] = useState(2);
-  const [difficulty, setDifficulty] = useState<BotDifficulty>("raider");
   const [multiKind, setMultiKind] = useState<MultiKind>("hotseat");
   const [multiCount, setMultiCount] = useState(3);
   const [multiNames, setMultiNames] = useState<string[]>(["Pemain 2", "Pemain 3"]);
@@ -57,56 +50,49 @@ export function OdinSetup({
     if (mode === "single") {
       onStart({
         players: [
-          { id: "p-you", name: playerName, kind: "human" },
-          { id: "p-bot", name: "Draugr Pemula", kind: "bot" },
+          { id: "p-you", name: playerName, kind: "human", color: PLAYER_COLORS[0].key },
+          { id: "p-bot", name: "AI Tacta", kind: "bot", color: PLAYER_COLORS[1].key },
         ],
         controlledIds: ["p-you"],
         primaryId: "p-you",
-        scoreLimit: 10,
-        botDifficulty: "novice",
       });
       return;
     }
 
     if (mode === "bot") {
       const players = [
-        { id: "p-you", name: playerName, kind: "human" as const },
+        { id: "p-you", name: playerName, kind: "human" as const, color: PLAYER_COLORS[0].key },
         ...Array.from({ length: botCount }, (_, i) => ({
           id: `p-bot-${i}`,
-          name: `Draugr ${i + 1}`,
+          name: `AI Tacta ${i + 1}`,
           kind: "bot" as const,
+          color: PLAYER_COLORS[i + 1].key,
         })),
       ];
-      onStart({
-        players,
-        controlledIds: ["p-you"],
-        primaryId: "p-you",
-        scoreLimit: 15,
-        botDifficulty: difficulty,
-      });
+      onStart({ players, controlledIds: ["p-you"], primaryId: "p-you" });
       return;
     }
 
     // multiplayer hotseat
     const humans = [
-      { id: "p-1", name: playerName, kind: "human" as const },
+      { id: "p-1", name: playerName, kind: "human" as const, color: PLAYER_COLORS[0].key },
       ...multiNames.slice(0, multiCount - 1).map((name, i) => ({
         id: `p-${i + 2}`,
         name: name || `Pemain ${i + 2}`,
         kind: "human" as const,
+        color: PLAYER_COLORS[i + 1].key,
       })),
     ];
     const hotseatBots = Array.from({ length: hotseatBotCount }, (_, i) => ({
       id: `p-hotseat-bot-${i}`,
-      name: `Draugr ${i + 1}`,
+      name: `AI Tacta ${i + 1}`,
       kind: "bot" as const,
+      color: PLAYER_COLORS[humans.length + i].key,
     }));
     onStart({
       players: [...humans, ...hotseatBots],
       controlledIds: humans.map((p) => p.id),
       primaryId: "p-1",
-      scoreLimit: 15,
-      botDifficulty: difficulty,
     });
   }
 
@@ -118,11 +104,12 @@ export function OdinSetup({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <OdinIllustration />
-        <h1 className={styles.heroTitle}>Odin</h1>
+        <TactaIllustration />
+        <h1 className={styles.heroTitle}>Tacta</h1>
         <p className={styles.heroDesc}>
-          Buang kartu secepat mungkin, bentuk kombinasi warna atau angka bernilai
-          tinggi, dan rebut kartu lawan yang berhasil kau kalahkan.
+          Tutup bentuk lawan untuk menyembunyikan poin mereka, atau sebar kartu
+          bernilai tinggimu ke sudut papan yang aman. Skor tertinggi saat kedua
+          dekmu habis yang menang.
         </p>
       </motion.div>
 
@@ -148,53 +135,35 @@ export function OdinSetup({
         <p style={{ marginBottom: "1.25rem" }}>{MODE_DESCRIPTIONS[mode]}</p>
 
         {mode === "single" && (
-          <p className={styles.hintNote}>
-            1 lawan Draugr pemula, target 10 poin — cocok untuk mempelajari alur permainan.
-          </p>
+          <p className={styles.hintNote}>1 lawan AI Tacta — cocok untuk mempelajari alur menutup & bertahan.</p>
         )}
 
         {mode === "bot" && (
-          <>
-            <div className={styles.field}>
-              <span className={styles.label}>Jumlah Draugr (Bot)</span>
-              <div className={styles.stepper}>
-                <button className={styles.stepBtn} onClick={() => setBotCount((c) => Math.max(1, c - 1))}>
-                  −
-                </button>
-                <span className={styles.stepVal}>{botCount}</span>
-                <button className={styles.stepBtn} onClick={() => setBotCount((c) => Math.min(5, c + 1))}>
-                  +
-                </button>
-              </div>
+          <div className={styles.field}>
+            <span className={styles.label}>Jumlah AI Tacta</span>
+            <div className={styles.stepper}>
+              <button className={styles.stepBtn} onClick={() => setBotCount((c) => Math.max(1, c - 1))}>
+                −
+              </button>
+              <span className={styles.stepVal}>{botCount}</span>
+              <button className={styles.stepBtn} onClick={() => setBotCount((c) => Math.min(5, c + 1))}>
+                +
+              </button>
             </div>
-            <div className={styles.field}>
-              <span className={styles.label}>Tingkat Kesulitan</span>
-              <div className={styles.difficultyRow}>
-                {DIFFICULTIES.map((d) => (
-                  <button
-                    key={d.id}
-                    className={[styles.diffBtn, difficulty === d.id ? styles.active : ""].join(" ")}
-                    onClick={() => setDifficulty(d.id)}
-                  >
-                    {d.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </>
+          </div>
         )}
 
         {mode === "multiplayer" && (
           <>
-            <div className={styles.difficultyRow} style={{ marginBottom: "1.4rem" }}>
+            <div className={styles.optionRow} style={{ marginBottom: "1.4rem" }}>
               <button
-                className={[styles.diffBtn, multiKind === "hotseat" ? styles.active : ""].join(" ")}
+                className={[styles.optionBtn, multiKind === "hotseat" ? styles.active : ""].join(" ")}
                 onClick={() => setMultiKind("hotseat")}
               >
                 Hotseat (1 perangkat)
               </button>
               <button
-                className={[styles.diffBtn, multiKind === "online" ? styles.active : ""].join(" ")}
+                className={[styles.optionBtn, multiKind === "online" ? styles.active : ""].join(" ")}
                 onClick={() => setMultiKind("online")}
               >
                 Room Online (kode)
@@ -235,7 +204,7 @@ export function OdinSetup({
                   </div>
                 </div>
                 <div className={styles.field}>
-                  <span className={styles.label}>Tambahkan Bot Draugr (opsional)</span>
+                  <span className={styles.label}>Tambahkan AI Tacta (opsional)</span>
                   <div className={styles.stepper}>
                     <button className={styles.stepBtn} onClick={() => updateHotseatBotCount(-1)}>
                       −
@@ -246,22 +215,6 @@ export function OdinSetup({
                     </button>
                   </div>
                 </div>
-                {hotseatBotCount > 0 && (
-                  <div className={styles.field}>
-                    <span className={styles.label}>Tingkat Kesulitan Bot</span>
-                    <div className={styles.difficultyRow}>
-                      {DIFFICULTIES.map((d) => (
-                        <button
-                          key={d.id}
-                          className={[styles.diffBtn, difficulty === d.id ? styles.active : ""].join(" ")}
-                          onClick={() => setDifficulty(d.id)}
-                        >
-                          {d.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
                 <button className={styles.startBtn} onClick={start}>
                   Mulai Permainan →
                 </button>

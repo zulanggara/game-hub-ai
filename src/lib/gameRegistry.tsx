@@ -24,12 +24,6 @@ export const modeLabels: Record<GameMode, string> = {
   multiplayer: "Multiplayer",
 };
 
-export const modeDescriptions: Record<GameMode, string> = {
-  single: "Berlatih sendiri melawan meja kosong untuk memahami alur permainan.",
-  bot: "Adu strategi melawan Draugr AI dengan tingkat kesulitan yang bisa diatur.",
-  multiplayer: "Mode hotseat — bergiliran di satu perangkat bersama teman.",
-};
-
 const registry: GameDefinition[] = [];
 
 export function registerGame(game: GameDefinition) {

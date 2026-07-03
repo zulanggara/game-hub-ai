@@ -66,8 +66,33 @@
   color-scheme: light;
 }
 
+/* Per-game accent overrides, set via document.documentElement.dataset.game.
+   Most chrome (buttons, borders, headings) reads the gold/line-strong
+   tokens, so swapping these gives each game its own atmosphere without
+   touching component code. Falls through to the Norse defaults above when
+   unset (the hub shell + Odin). */
+:root[data-game="tacta"] {
+  --gold: #2fb8a6;
+  --gold-hi: #7fe0d1;
+  --gold-dim: #1f7a6e;
+  --line-strong: #2fb8a655;
+  --bg-glow-a: #10262a;
+  --bg-glow-b: #191a2e;
+  --font-display-game: "Big Shoulders Display", var(--font-display);
+}
+
+:root[data-theme="light"][data-game="tacta"] {
+  --gold: #158376;
+  --gold-hi: #0f665b;
+  --gold-dim: #4fc7b8;
+  --line-strong: #15837655;
+  --bg-glow-a: #d3ece7;
+  --bg-glow-b: #dce4f2;
+}
+
 :root {
   --font-display: "Cinzel", "Marcellus", serif;
+  --font-display-game: var(--font-display);
   --font-body: "Marcellus", serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 

@@ -1,15 +1,23 @@
 import { get, onDisconnect, onValue, ref, remove, set, update } from "firebase/database";
 import { getRoomDatabase } from "../../../lib/firebase";
+import { getClientId } from "../../../lib/clientId";
 import { initGame, odinReducer, type Action, type NewPlayerSpec } from "../engine/reducer";
 import type { GameState } from "../engine/types";
 
+export { getClientId };
+
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I to avoid confusion
-const CLIENT_ID_KEY = "hog:client-id";
 
 export interface RoomPlayer {
   name: string;
   joinedAt: number;
   seat: number;
+}
+
+export interface RoomBot {
+  name: string;
+  seat: number;
+  difficulty: "novice" | "raider" | "jarl";
 }
 
 export interface RoomDoc {
@@ -18,36 +26,8 @@ export interface RoomDoc {
   status: "lobby" | "playing";
   scoreLimit: number;
   players: Record<string, RoomPlayer>;
+  bots: Record<string, RoomBot>;
   state: GameState | null;
-}
-
-/**
- * `crypto.randomUUID()` only exists in secure contexts (HTTPS / localhost).
- * Visiting the dev server over a plain-HTTP LAN address (e.g. from a phone)
- * is not a secure context, so it's undefined there — fall back to
- * `getRandomValues` (available everywhere) and finally to Math.random.
- */
-function generateId(): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-    const bytes = crypto.getRandomValues(new Uint8Array(16));
-    bytes[6] = (bytes[6] & 0x0f) | 0x40;
-    bytes[8] = (bytes[8] & 0x3f) | 0x80;
-    const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
-    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-  }
-  return `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
-export function getClientId(): string {
-  let id = localStorage.getItem(CLIENT_ID_KEY);
-  if (!id) {
-    id = generateId();
-    localStorage.setItem(CLIENT_ID_KEY, id);
-  }
-  return id;
 }
 
 function randomCode(): string {
@@ -56,6 +36,10 @@ function randomCode(): string {
     code += CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)];
   }
   return code;
+}
+
+function seatCount(room: Pick<RoomDoc, "players" | "bots">): number {
+  return Object.keys(room.players ?? {}).length + Object.keys(room.bots ?? {}).length;
 }
 
 export async function createRoom(hostName: string, scoreLimit: number): Promise<string> {
@@ -74,6 +58,7 @@ export async function createRoom(hostName: string, scoreLimit: number): Promise<
       status: "lobby",
       scoreLimit,
       players: { [hostId]: { name: hostName, joinedAt: Date.now(), seat: 0 } },
+      bots: {},
       state: null,
     };
     await set(roomRef, doc);
@@ -94,12 +79,36 @@ export async function joinRoom(code: string, name: string): Promise<void> {
   if (room.status !== "lobby") throw new Error("Room ini sudah mulai bermain.");
   const players = room.players ?? {};
   if (players[clientId]) return; // already in room (reconnect)
-  if (Object.keys(players).length >= 6) throw new Error("Room sudah penuh (maks 6 pemain).");
+  if (seatCount(room) >= 6) throw new Error("Room sudah penuh (maks 6 peserta).");
 
-  const seat = Object.keys(players).length;
   const playerRef = ref(db, `rooms/${code}/players/${clientId}`);
-  await set(playerRef, { name, joinedAt: Date.now(), seat } satisfies RoomPlayer);
+  await set(playerRef, { name, joinedAt: Date.now(), seat: seatCount(room) } satisfies RoomPlayer);
   onDisconnect(playerRef).remove();
+}
+
+export async function addBot(
+  code: string,
+  name: string,
+  difficulty: RoomBot["difficulty"]
+): Promise<void> {
+  const db = getRoomDatabase();
+  const roomRef = ref(db, `rooms/${code}`);
+  const snap = await get(roomRef);
+  if (!snap.exists()) throw new Error("Room tidak ditemukan.");
+  const room = snap.val() as RoomDoc;
+  if (seatCount(room) >= 6) throw new Error("Room sudah penuh (maks 6 peserta).");
+
+  const botId = `bot-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+  await set(ref(db, `rooms/${code}/bots/${botId}`), {
+    name,
+    seat: seatCount(room),
+    difficulty,
+  } satisfies RoomBot);
+}
+
+export async function removeBot(code: string, botId: string): Promise<void> {
+  const db = getRoomDatabase();
+  await remove(ref(db, `rooms/${code}/bots/${botId}`));
 }
 
 /**
@@ -114,6 +123,7 @@ function normalizeRoom(raw: RoomDoc): RoomDoc {
   return {
     ...raw,
     players: raw.players ?? {},
+    bots: raw.bots ?? {},
     state: state
       ? {
           ...state,
