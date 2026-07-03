@@ -22,6 +22,30 @@ function errorMessage(e: unknown): string {
   return "Terjadi kesalahan tak terduga saat menghubungi server room. Coba lagi.";
 }
 
+/** navigator.clipboard also requires a secure context (HTTPS/localhost) and
+ * silently fails over plain-HTTP LAN access — fall back to a hidden
+ * textarea + execCommand so "Salin Kode" still works from a phone on WiFi. */
+function copyToClipboard(text: string): boolean {
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text).catch(() => {});
+    return true;
+  }
+  try {
+    const el = document.createElement("textarea");
+    el.value = text;
+    el.style.position = "fixed";
+    el.style.opacity = "0";
+    document.body.appendChild(el);
+    el.focus();
+    el.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(el);
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
 export function OdinRoomLobby({
   onExit,
   onGameOver,
@@ -39,6 +63,7 @@ export function OdinRoomLobby({
   const [scoreLimit, setScoreLimit] = useState(15);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!roomCode) return;
@@ -141,9 +166,13 @@ export function OdinRoomLobby({
             <p className={styles.codeHint}>Bagikan kode ini ke teman untuk bergabung.</p>
             <button
               className={styles.copyBtn}
-              onClick={() => navigator.clipboard?.writeText(roomCode)}
+              onClick={() => {
+                const ok = copyToClipboard(roomCode);
+                setCopied(ok);
+                setTimeout(() => setCopied(false), 1500);
+              }}
             >
-              Salin Kode
+              {copied ? "Tersalin!" : "Salin Kode"}
             </button>
           </div>
 
