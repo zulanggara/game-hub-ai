@@ -16,6 +16,12 @@ import styles from "./OdinRoomLobby.module.css";
 
 type Mode = "menu" | "create" | "join";
 
+function errorMessage(e: unknown): string {
+  if (e instanceof Error && e.message) return e.message;
+  if (typeof e === "string" && e) return e;
+  return "Terjadi kesalahan tak terduga saat menghubungi server room. Coba lagi.";
+}
+
 export function OdinRoomLobby({
   onExit,
   onGameOver,
@@ -72,7 +78,7 @@ export function OdinRoomLobby({
       const code = await createRoom(username ?? "Tuan Rumah", scoreLimit);
       setRoomCode(code);
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     }
     setBusy(false);
   }
@@ -89,7 +95,7 @@ export function OdinRoomLobby({
       await joinRoom(code, username ?? "Pemain");
       setRoomCode(code);
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     }
     setBusy(false);
   }
@@ -106,7 +112,7 @@ export function OdinRoomLobby({
     try {
       await startRoomGame(roomCode, specs, room.scoreLimit);
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     }
     setBusy(false);
   }

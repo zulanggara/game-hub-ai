@@ -82,10 +82,41 @@ export async function joinRoom(code: string, name: string): Promise<void> {
   onDisconnect(playerRef).remove();
 }
 
+/**
+ * Firebase Realtime Database silently deletes any empty array/object it's
+ * asked to store (e.g. a player's hand going to length 0 when they win a
+ * round). Reading that path back gives `undefined` instead of `[]`/`null`,
+ * which crashes anything downstream that assumes an array. Restore the
+ * shape the reducer/UI expect before handing data back to the app.
+ */
+function normalizeRoom(raw: RoomDoc): RoomDoc {
+  const state = raw.state;
+  return {
+    ...raw,
+    players: raw.players ?? {},
+    state: state
+      ? {
+          ...state,
+          turnOrder: state.turnOrder ?? [],
+          log: state.log ?? [],
+          players: (state.players ?? []).map((p) => ({ ...p, hand: p.hand ?? [] })),
+          trick: state.trick
+            ? { ...state.trick, combo: { ...state.trick.combo, cards: state.trick.combo.cards ?? [] } }
+            : null,
+          pendingTake: state.pendingTake
+            ? { ...state.pendingTake, options: state.pendingTake.options ?? [] }
+            : null,
+        }
+      : null,
+  };
+}
+
 export function subscribeRoom(code: string, cb: (room: RoomDoc | null) => void): () => void {
   const db = getRoomDatabase();
   const roomRef = ref(db, `rooms/${code}`);
-  const unsub = onValue(roomRef, (snap) => cb(snap.exists() ? (snap.val() as RoomDoc) : null));
+  const unsub = onValue(roomRef, (snap) =>
+    cb(snap.exists() ? normalizeRoom(snap.val() as RoomDoc) : null)
+  );
   return () => unsub();
 }
 

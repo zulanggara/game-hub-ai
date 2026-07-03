@@ -3,6 +3,7 @@ import { ProfileProvider } from "./lib/profile";
 import { ThemeProvider } from "./lib/theme";
 import { AmbientMusicProvider } from "./lib/ambientMusic";
 import { SiteHeader } from "./components/SiteHeader";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Hub } from "./pages/Hub";
 import { OdinPage } from "./games/odin/OdinPage";
 import "./games/odin/index";
@@ -14,10 +15,12 @@ function App() {
         <AmbientMusicProvider>
           <HashRouter>
             <SiteHeader />
-            <Routes>
-              <Route path="/" element={<Hub />} />
-              <Route path="/play/odin" element={<OdinPage />} />
-            </Routes>
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={<Hub />} />
+                <Route path="/play/odin" element={<OdinPage />} />
+              </Routes>
+            </ErrorBoundary>
           </HashRouter>
         </AmbientMusicProvider>
       </ProfileProvider>
