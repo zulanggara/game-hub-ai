@@ -1,0 +1,105 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem clamp(1.25rem, 4vw, 3rem);
+  background: linear-gradient(180deg, #0b0c10f0 0%, #0b0c10c0 80%, transparent 100%);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.brandMark {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+.brandText {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-hi);
+}
+
+.brandSub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.profileLabel {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+
+.nameButton {
+  background: var(--bg-panel);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.9rem;
+  color: var(--gold-hi);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.nameButton:hover {
+  border-color: var(--gold);
+  transform: translateY(-1px);
+}
+
+.nameForm {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.nameInput {
+  background: var(--bg-void);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.7rem;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  width: 140px;
+}
+
+.nameInput:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #d4af3733;
+}
+
+.saveButton {
+  background: var(--gold);
+  color: var(--bg-void);
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.4rem 0.8rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8rem;
+}

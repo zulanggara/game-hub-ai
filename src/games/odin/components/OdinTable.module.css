@@ -1,0 +1,221 @@
+.table {
+  position: relative;
+  min-height: calc(100vh - 76px);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 1rem;
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem clamp(1rem, 4vw, 2.5rem) 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.roundBadge {
+  color: var(--gold-hi);
+}
+
+.quitLink {
+  color: var(--ink-faint);
+  border: 1px solid var(--line);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+}
+
+.opponents {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  padding: 1.25rem 1rem 0.5rem;
+}
+
+.seat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.seat.active {
+  border-color: var(--line-strong);
+  background: #d4af3712;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--gold-hi);
+}
+
+.seatName {
+  font-size: 0.82rem;
+  color: var(--ink);
+}
+
+.seatMeta {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--ink-faint);
+}
+
+.cardStack {
+  display: flex;
+}
+
+.cardStack > * {
+  margin-left: -22px;
+}
+
+.cardStack > *:first-child {
+  margin-left: 0;
+}
+
+.miniBack {
+  width: 22px;
+  height: 32px;
+  border-radius: 4px;
+  background: repeating-linear-gradient(45deg, #17131a, #17131a 4px, #1d1824 4px, #1d1824 8px);
+  border: 1px solid var(--line-strong);
+}
+
+.center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+}
+
+.pile {
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.pileCards {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.pileEmpty {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+  border: 1px dashed var(--line-strong);
+  padding: 1rem 1.75rem;
+  border-radius: 10px;
+}
+
+.pileOwner {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--gold-hi);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.turnBanner {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--gold-hi);
+  letter-spacing: 0.04em;
+  min-height: 1.5rem;
+}
+
+.log {
+  max-height: 70px;
+  overflow-y: auto;
+  margin: 0 auto;
+  max-width: 640px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #0b0c10dd;
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  padding: 2rem clamp(1.5rem, 5vw, 3rem);
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-deep), var(--shadow-gold);
+}
+
+.panelTitle {
+  font-size: 1.8rem;
+  color: var(--gold-hi);
+  margin-bottom: 0.5rem;
+}
+
+.scoreTable {
+  width: 100%;
+  margin: 1.25rem 0;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.scoreTable td {
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  color: var(--ink-dim);
+}
+
+.scoreTable td:last-child {
+  text-align: right;
+  color: var(--ink);
+}
+
+.scoreTable .winnerRow td {
+  color: var(--gold-hi);
+  font-weight: 700;
+}
+
+.takeOptions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  flex-wrap: wrap;
+}

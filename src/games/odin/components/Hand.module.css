@@ -1,0 +1,72 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem 1rem 1.5rem;
+}
+
+.cards {
+  display: flex;
+  gap: -14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 900px;
+}
+
+.cards > * {
+  margin-left: -14px;
+  transition: transform 0.15s ease;
+}
+
+.cards > *:first-child {
+  margin-left: 0;
+}
+
+.cards > *:hover {
+  transform: translateY(-10px);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.03em;
+}
+
+.playBtn {
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  color: #1a1406;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.6rem 1.4rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.playBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.passBtn {
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--ink-dim);
+  border-radius: var(--radius);
+  padding: 0.6rem 1.2rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+.passBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}

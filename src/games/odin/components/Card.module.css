@@ -1,0 +1,87 @@
+.card {
+  --hue: var(--card-hue, 40);
+  position: relative;
+  width: 68px;
+  height: 96px;
+  border-radius: 8px;
+  background: linear-gradient(160deg, var(--card-a), var(--card-b));
+  border: 1px solid #00000055;
+  box-shadow: 0 6px 14px -6px #000000aa, inset 0 0 0 1px #ffffff14;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #100d05;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.card.selected {
+  outline: 3px solid var(--gold-hi);
+  outline-offset: 2px;
+}
+
+.card.disabled {
+  cursor: default;
+  filter: saturate(0.5) brightness(0.75);
+}
+
+.number {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.rune {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  opacity: 0.55;
+}
+
+.rune.tl {
+  top: 5px;
+  left: 7px;
+}
+
+.rune.br {
+  bottom: 5px;
+  right: 7px;
+  transform: rotate(180deg);
+}
+
+.glyph {
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.glyph svg {
+  width: 70%;
+  height: 70%;
+}
+
+.back {
+  width: 68px;
+  height: 96px;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(45deg, #17131a, #17131a 6px, #1d1824 6px, #1d1824 12px);
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 6px 14px -6px #000000aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.back svg {
+  width: 55%;
+  height: 55%;
+  opacity: 0.7;
+}
