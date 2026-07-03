@@ -7,7 +7,12 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 1.1rem clamp(1.25rem, 4vw, 3rem);
-  background: linear-gradient(180deg, #0b0c10f0 0%, #0b0c10c0 80%, transparent 100%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bg-void) 94%, transparent) 0%,
+    color-mix(in srgb, var(--bg-void) 75%, transparent) 80%,
+    transparent 100%
+  );
   backdrop-filter: blur(6px);
   border-bottom: 1px solid var(--line);
 }
@@ -40,6 +45,48 @@
   letter-spacing: 0.2em;
   color: var(--ink-faint);
   text-transform: uppercase;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 1px solid var(--line-strong);
+  color: var(--gold-hi);
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.iconButton:hover {
+  border-color: var(--gold);
+  transform: translateY(-1px);
+}
+
+.musicControl {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.volumeSlider {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 110px;
+  accent-color: var(--gold);
+  background: var(--bg-panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.3rem 0.6rem;
 }
 
 .profile {

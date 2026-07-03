@@ -9,6 +9,7 @@ function combinations<T>(items: T[], k: number): T[][] {
   return [...withFirst, ...withoutFirst];
 }
 
+/** Best possible value this set of cards could form (digits high-to-low). Used to judge whether a group is even worth considering as a legal move. */
 export function comboValue(cards: Card[]): number {
   if (cards.length === 1) return cards[0].number;
   const digits = cards
@@ -16,6 +17,12 @@ export function comboValue(cards: Card[]): number {
     .sort((a, b) => b - a)
     .join("");
   return Number(digits);
+}
+
+/** Actual value formed by the cards in the exact order they were picked. */
+export function orderedValue(cards: Card[]): number {
+  if (cards.length === 1) return cards[0].number;
+  return Number(cards.map((c) => c.number).join(""));
 }
 
 export function isValidGroup(cards: Card[]): boolean {

@@ -1,15 +1,17 @@
 /* ============================================================
    Hall of Games — Norse Mythic Brutalist design system
+   Theme-aware: [data-theme="dark"] (default) / [data-theme="light"]
    ============================================================ */
 
-:root {
+:root,
+:root[data-theme="dark"] {
   --bg-void: #0b0c10;
   --bg-raised: #14161d;
   --bg-panel: #1a1d26;
 
   --ink: #e8e3d3;
   --ink-dim: #a9a493;
-  --ink-faint: #6c6b64;
+  --ink-faint: #857f70;
 
   --gold: #d4af37;
   --gold-hi: #f2d67e;
@@ -21,18 +23,58 @@
   --blood: #9a3b3b;
   --blood-hi: #c95656;
 
-  --line: #34384433;
+  --line: #ffffff1f;
   --line-strong: #d4af3755;
 
+  --overlay-bg: #0b0c10dd;
+  --bg-glow-a: #1c2030;
+  --bg-glow-b: #1a1420;
+  --texture-opacity: 0.05;
+  --grain-opacity: 0.035;
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg-void: #efe6d1;
+  --bg-raised: #f7f0dd;
+  --bg-panel: #fbf5e6;
+
+  --ink: #241b0e;
+  --ink-dim: #55492f;
+  --ink-faint: #7c6d4d;
+
+  --gold: #9c7412;
+  --gold-hi: #7a5a0c;
+  --gold-dim: #c9a227;
+
+  --frost: #2f5f8f;
+  --frost-hi: #1d3f61;
+
+  --blood: #7a2020;
+  --blood-hi: #5a1717;
+
+  --line: #241b0e22;
+  --line-strong: #9c741255;
+
+  --overlay-bg: #efe6d1ee;
+  --bg-glow-a: #e3d4ad;
+  --bg-glow-b: #ddd0c4;
+  --texture-opacity: 0.09;
+  --grain-opacity: 0.025;
+
+  color-scheme: light;
+}
+
+:root {
   --font-display: "Cinzel", "Marcellus", serif;
   --font-body: "Marcellus", serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --radius: 6px;
-  --shadow-deep: 0 20px 60px -20px #000000cc;
+  --shadow-deep: 0 20px 60px -20px #00000099;
   --shadow-gold: 0 0 0 1px var(--line-strong), 0 8px 30px -10px #d4af3733;
 
-  color-scheme: dark;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -50,8 +92,8 @@ body {
 
 body {
   background:
-    radial-gradient(ellipse 120% 80% at 50% -10%, #1c2030 0%, transparent 60%),
-    radial-gradient(ellipse 80% 60% at 90% 100%, #1a1420 0%, transparent 55%),
+    radial-gradient(ellipse 120% 80% at 50% -10%, var(--bg-glow-a) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 90% 100%, var(--bg-glow-b) 0%, transparent 55%),
     var(--bg-void);
   color: var(--ink);
   font-family: var(--font-body);
@@ -59,6 +101,7 @@ body {
   overflow-x: hidden;
   min-width: 320px;
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* subtle rune-grid texture */
@@ -68,7 +111,7 @@ body::before {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.05;
+  opacity: var(--texture-opacity);
   background-image:
     linear-gradient(var(--gold) 1px, transparent 1px),
     linear-gradient(90deg, var(--gold) 1px, transparent 1px);
@@ -83,7 +126,7 @@ body::after {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.035;
+  opacity: var(--grain-opacity);
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 

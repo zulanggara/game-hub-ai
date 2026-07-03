@@ -16,6 +16,12 @@ function pickHighest(combos: Combo[]): Combo {
   return combos.reduce((max, c) => (c.value > max.value ? c : max), combos[0]);
 }
 
+/** The engine values a play by the order cards are submitted, so the bot must
+ * hand its cards over sorted high-to-low to actually realize `combo.value`. */
+function toCardIds(combo: Combo): string[] {
+  return [...combo.cards].sort((a, b) => b.number - a.number).map((c) => c.id);
+}
+
 export function botDecide(
   state: GameState,
   botId: string,
@@ -36,28 +42,28 @@ export function botDecide(
   if (!tableCombo) {
     // Leading a fresh trick: unload weak singles, or push hard if close to winning.
     const choice = nearlyOut ? pickHighest(options) : pickLowest(options);
-    return { action: "play", cardIds: choice.cards.map((c) => c.id) };
+    return { action: "play", cardIds: toCardIds(choice) };
   }
 
   if (difficulty === "novice") {
     const passChance = 0.35;
     if (Math.random() < passChance) return { action: "pass" };
-    return { action: "play", cardIds: pickLowest(options).cards.map((c) => c.id) };
+    return { action: "play", cardIds: toCardIds(pickLowest(options)) };
   }
 
   if (difficulty === "jarl") {
     if (nearlyOut) {
-      return { action: "play", cardIds: pickHighest(options).cards.map((c) => c.id) };
+      return { action: "play", cardIds: toCardIds(pickHighest(options)) };
     }
     // Prefer to extend trick size only when it clears meaningful weight; otherwise smallest legal beat.
     const sameSize = options.filter((o) => o.cards.length === tableCombo.cards.length);
     const choice = sameSize.length > 0 ? pickLowest(sameSize) : pickLowest(options);
-    return { action: "play", cardIds: choice.cards.map((c) => c.id) };
+    return { action: "play", cardIds: toCardIds(choice) };
   }
 
   // "raider" — balanced default
   const choice = nearlyOut ? pickHighest(options) : pickLowest(options);
-  return { action: "play", cardIds: choice.cards.map((c) => c.id) };
+  return { action: "play", cardIds: toCardIds(choice) };
 }
 
 export function botChooseTake(options: Card[]): string {

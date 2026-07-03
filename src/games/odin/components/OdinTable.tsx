@@ -117,14 +117,26 @@ export function OdinTable({
 
       <div className={styles.center}>
         <div className={styles.pile}>
-          <div className={styles.turnBanner}>
-            {state.phase === "playing" &&
-              (isHandTurn ? `Giliranmu, ${seatedPlayer.name}` : `Menunggu ${activeName ?? "..."}`)}
-            {state.phase === "awaiting-take" &&
-              (actorIsControlled
-                ? `${seatedPlayer.name}, pilih 1 kartu untuk diambil`
-                : `${state.players.find((p) => p.id === state.pendingTake?.forPlayerId)?.name} sedang mengambil kartu...`)}
-          </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${state.phase}-${currentActorId}`}
+              className={[styles.turnBanner, isHandTurn ? styles.turnBannerYou : ""].join(" ")}
+              initial={{ opacity: 0, y: -8, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.94 }}
+              transition={{ duration: 0.25 }}
+            >
+              <span className={styles.turnDot} />
+              <span>
+                {state.phase === "playing" &&
+                  (isHandTurn ? `Giliranmu, ${seatedPlayer.name}!` : `Menunggu ${activeName ?? "..."}`)}
+                {state.phase === "awaiting-take" &&
+                  (actorIsControlled
+                    ? `${seatedPlayer.name}, pilih 1 kartu untuk diambil`
+                    : `${state.players.find((p) => p.id === state.pendingTake?.forPlayerId)?.name} sedang mengambil kartu...`)}
+              </span>
+            </motion.div>
+          </AnimatePresence>
 
           <AnimatePresence mode="wait">
             {state.trick ? (
@@ -152,7 +164,12 @@ export function OdinTable({
         </div>
       </div>
 
-      <div className={styles.log}>{state.log.slice(-3).join(" · ")}</div>
+      <div className={styles.log}>
+        <span className={styles.logIcon} aria-hidden>
+          ⚔
+        </span>
+        <span className={styles.logText}>{state.log.slice(-3).join(" · ")}</span>
+      </div>
 
       <Hand
         cards={seatedPlayer.hand}

@@ -66,6 +66,24 @@
   height: 70%;
 }
 
+.orderBadge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--gold-hi);
+  color: #1a1406;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px #000000aa, 0 0 0 2px var(--bg-void);
+}
+
 .back {
   width: 68px;
   height: 96px;

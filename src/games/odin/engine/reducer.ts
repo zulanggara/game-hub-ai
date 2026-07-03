@@ -1,5 +1,5 @@
 import { dealHands } from "./deck";
-import { isValidGroup, comboValue, legalCombos } from "./combos";
+import { isValidGroup, orderedValue, legalCombos } from "./combos";
 import type { GameState, Player, PlayerKind } from "./types";
 
 export interface NewPlayerSpec {
@@ -132,7 +132,7 @@ export function odinReducer(state: GameState, action: Action): GameState {
         const size = cards.length;
         if (size !== state.trick.combo.cards.length && size !== state.trick.combo.cards.length + 1)
           return state;
-        if (comboValue(cards) <= state.trick.combo.value) return state;
+        if (orderedValue(cards) <= state.trick.combo.value) return state;
       }
 
       const next = cloneState(state);
@@ -141,7 +141,7 @@ export function odinReducer(state: GameState, action: Action): GameState {
       const previousComboCards = next.trick?.combo.cards ?? [];
       nextPlayer.hand = nextPlayer.hand.filter((c) => !cardIds.has(c.id));
 
-      const combo = { cards, value: comboValue(cards) };
+      const combo = { cards, value: orderedValue(cards) };
       next.trick = { combo, ownerId: action.playerId };
       next.log.push(`${nextPlayer.name} memainkan ${cards.length} kartu (nilai ${combo.value}).`);
 

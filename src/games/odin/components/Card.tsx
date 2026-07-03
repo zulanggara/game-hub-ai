@@ -16,9 +16,11 @@ interface CardProps {
   disabled?: boolean;
   onClick?: () => void;
   style?: React.CSSProperties;
+  /** 1-based position of this card in the player's current click order */
+  orderBadge?: number;
 }
 
-export function Card({ card, selected, disabled, onClick, style }: CardProps) {
+export function Card({ card, selected, disabled, onClick, style, orderBadge }: CardProps) {
   const palette = COLOR_STYLES[card.color];
   return (
     <button
@@ -40,6 +42,7 @@ export function Card({ card, selected, disabled, onClick, style }: CardProps) {
       <span className={`${styles.rune} ${styles.tl}`}>{card.number}</span>
       <span className={styles.number}>{card.number}</span>
       <span className={`${styles.rune} ${styles.br}`}>{card.number}</span>
+      {orderBadge != null && <span className={styles.orderBadge}>{orderBadge}</span>}
     </button>
   );
 }

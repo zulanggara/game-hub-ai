@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useProfile } from "../lib/profile";
+import { useTheme } from "../lib/theme";
+import { useAmbientMusic } from "../lib/ambientMusic";
 import styles from "./SiteHeader.module.css";
 
 function RuneMark() {
@@ -18,10 +20,40 @@ function RuneMark() {
   );
 }
 
+function SunIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="12" cy="12" r="4.2" />
+      <path d="M12 2.5v2.4M12 19.1v2.4M4.4 4.4l1.7 1.7M17.9 17.9l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.4 19.6l1.7-1.7M17.9 6.1l1.7-1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+      <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z" />
+    </svg>
+  );
+}
+
+function SpeakerIcon({ muted }: { muted: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M4 9v6h4l5 4V5L8 9H4Z" strokeLinejoin="round" />
+      {!muted && <path d="M17 8.5a5 5 0 0 1 0 7M19.5 6a8.5 8.5 0 0 1 0 12" strokeLinecap="round" />}
+      {muted && <path d="M16 9l5 6M21 9l-5 6" strokeLinecap="round" />}
+    </svg>
+  );
+}
+
 export function SiteHeader() {
   const { username, setUsername } = useProfile();
+  const { theme, toggleTheme } = useTheme();
+  const music = useAmbientMusic();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(username ?? "");
+  const [showVolume, setShowVolume] = useState(false);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,35 +72,71 @@ export function SiteHeader() {
         </span>
       </Link>
 
-      <div className={styles.profile}>
-        {editing ? (
-          <form className={styles.nameForm} onSubmit={submit}>
+      <div className={styles.controls}>
+        <div className={styles.musicControl} onMouseLeave={() => setShowVolume(false)}>
+          <button
+            className={styles.iconButton}
+            onClick={music.toggle}
+            onMouseEnter={() => setShowVolume(true)}
+            aria-pressed={music.enabled}
+            aria-label={music.enabled ? "Matikan musik latar" : "Nyalakan musik latar"}
+            title={music.enabled ? "Matikan musik latar" : "Nyalakan musik latar Norse"}
+          >
+            <SpeakerIcon muted={!music.enabled} />
+          </button>
+          {showVolume && music.enabled && (
             <input
-              className={styles.nameInput}
-              autoFocus
-              maxLength={18}
-              placeholder="Nama pemain"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
+              className={styles.volumeSlider}
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={music.volume}
+              onChange={(e) => music.setVolume(Number(e.target.value))}
+              aria-label="Volume musik latar"
             />
-            <button type="submit" className={styles.saveButton}>
-              Simpan
-            </button>
-          </form>
-        ) : (
-          <>
-            <span className={styles.profileLabel}>Pemain</span>
-            <button
-              className={styles.nameButton}
-              onClick={() => {
-                setDraft(username ?? "");
-                setEditing(true);
-              }}
-            >
-              {username ?? "Tetapkan nama"}
-            </button>
-          </>
-        )}
+          )}
+        </div>
+
+        <button
+          className={styles.iconButton}
+          onClick={toggleTheme}
+          aria-label={theme === "dark" ? "Ganti ke mode terang" : "Ganti ke mode gelap"}
+          title={theme === "dark" ? "Mode Terang" : "Mode Gelap"}
+        >
+          {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+        </button>
+
+        <div className={styles.profile}>
+          {editing ? (
+            <form className={styles.nameForm} onSubmit={submit}>
+              <input
+                className={styles.nameInput}
+                autoFocus
+                maxLength={18}
+                placeholder="Nama pemain"
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+              />
+              <button type="submit" className={styles.saveButton}>
+                Simpan
+              </button>
+            </form>
+          ) : (
+            <>
+              <span className={styles.profileLabel}>Pemain</span>
+              <button
+                className={styles.nameButton}
+                onClick={() => {
+                  setDraft(username ?? "");
+                  setEditing(true);
+                }}
+              >
+                {username ?? "Tetapkan nama"}
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );
