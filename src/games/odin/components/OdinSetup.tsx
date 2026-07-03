@@ -4,7 +4,7 @@ import { useProfile } from "../../../lib/profile";
 import { modeLabels, modeDescriptions, type GameMode } from "../../../lib/gameRegistry";
 import { OdinIllustration } from "../Illustration";
 import type { BotDifficulty } from "../engine/bot";
-import type { OdinConfig } from "./OdinTable";
+import type { OdinConfig } from "./LocalOdinTable";
 import styles from "./OdinSetup.module.css";
 
 const DIFFICULTIES: { id: BotDifficulty; label: string }[] = [
@@ -13,13 +13,22 @@ const DIFFICULTIES: { id: BotDifficulty; label: string }[] = [
   { id: "jarl", label: "Jarl" },
 ];
 
-export function OdinSetup({ onStart }: { onStart: (config: OdinConfig) => void }) {
+type MultiKind = "hotseat" | "online";
+
+export function OdinSetup({
+  onStart,
+  onStartOnline,
+}: {
+  onStart: (config: OdinConfig) => void;
+  onStartOnline: () => void;
+}) {
   const { username } = useProfile();
   const playerName = username ?? "Pemain";
 
   const [mode, setMode] = useState<GameMode>("bot");
   const [botCount, setBotCount] = useState(2);
   const [difficulty, setDifficulty] = useState<BotDifficulty>("raider");
+  const [multiKind, setMultiKind] = useState<MultiKind>("hotseat");
   const [multiCount, setMultiCount] = useState(3);
   const [multiNames, setMultiNames] = useState<string[]>(["Pemain 2", "Pemain 3"]);
 
@@ -161,43 +170,77 @@ export function OdinSetup({ onStart }: { onStart: (config: OdinConfig) => void }
 
         {mode === "multiplayer" && (
           <>
-            <div className={styles.field}>
-              <span className={styles.label}>Jumlah Pemain (hotseat, 1 perangkat)</span>
-              <div className={styles.stepper}>
-                <button className={styles.stepBtn} onClick={() => updateMultiCount(-1)}>
-                  −
-                </button>
-                <span className={styles.stepVal}>{multiCount}</span>
-                <button className={styles.stepBtn} onClick={() => updateMultiCount(1)}>
-                  +
-                </button>
-              </div>
+            <div className={styles.difficultyRow} style={{ marginBottom: "1.4rem" }}>
+              <button
+                className={[styles.diffBtn, multiKind === "hotseat" ? styles.active : ""].join(" ")}
+                onClick={() => setMultiKind("hotseat")}
+              >
+                Hotseat (1 perangkat)
+              </button>
+              <button
+                className={[styles.diffBtn, multiKind === "online" ? styles.active : ""].join(" ")}
+                onClick={() => setMultiKind("online")}
+              >
+                Room Online (kode)
+              </button>
             </div>
-            <div className={styles.field}>
-              <span className={styles.label}>Nama Pemain</span>
-              <div className={styles.nameGrid}>
-                <input className={styles.nameInput} value={playerName} disabled />
-                {multiNames.slice(0, multiCount - 1).map((name, i) => (
-                  <input
-                    key={i}
-                    className={styles.nameInput}
-                    value={name}
-                    onChange={(e) => {
-                      const next = [...multiNames];
-                      next[i] = e.target.value;
-                      setMultiNames(next);
-                    }}
-                    placeholder={`Pemain ${i + 2}`}
-                  />
-                ))}
-              </div>
-            </div>
+
+            {multiKind === "hotseat" ? (
+              <>
+                <div className={styles.field}>
+                  <span className={styles.label}>Jumlah Pemain (bergiliran di 1 perangkat)</span>
+                  <div className={styles.stepper}>
+                    <button className={styles.stepBtn} onClick={() => updateMultiCount(-1)}>
+                      −
+                    </button>
+                    <span className={styles.stepVal}>{multiCount}</span>
+                    <button className={styles.stepBtn} onClick={() => updateMultiCount(1)}>
+                      +
+                    </button>
+                  </div>
+                </div>
+                <div className={styles.field}>
+                  <span className={styles.label}>Nama Pemain</span>
+                  <div className={styles.nameGrid}>
+                    <input className={styles.nameInput} value={playerName} disabled />
+                    {multiNames.slice(0, multiCount - 1).map((name, i) => (
+                      <input
+                        key={i}
+                        className={styles.nameInput}
+                        value={name}
+                        onChange={(e) => {
+                          const next = [...multiNames];
+                          next[i] = e.target.value;
+                          setMultiNames(next);
+                        }}
+                        placeholder={`Pemain ${i + 2}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <button className={styles.startBtn} onClick={start}>
+                  Mulai Permainan →
+                </button>
+              </>
+            ) : (
+              <>
+                <p className={styles.hintNote} style={{ marginBottom: "1.25rem" }}>
+                  Buat room dan bagikan kodenya, atau gabung ke room teman — tiap pemain
+                  main dari perangkatnya masing-masing.
+                </p>
+                <button className={styles.startBtn} onClick={onStartOnline}>
+                  Lanjut ke Room Online →
+                </button>
+              </>
+            )}
           </>
         )}
 
-        <button className={styles.startBtn} onClick={start}>
-          Mulai Permainan →
-        </button>
+        {mode !== "multiplayer" && (
+          <button className={styles.startBtn} onClick={start}>
+            Mulai Permainan →
+          </button>
+        )}
       </motion.div>
     </div>
   );

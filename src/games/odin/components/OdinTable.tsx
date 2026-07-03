@@ -1,36 +1,36 @@
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "./Card";
 import { Hand } from "./Hand";
-import { initGame, odinReducer, type NewPlayerSpec } from "../engine/reducer";
+import type { Action } from "../engine/reducer";
+import type { GameState } from "../engine/types";
 import { botChooseTake, botDecide, type BotDifficulty } from "../engine/bot";
 import styles from "./OdinTable.module.css";
 
-export interface OdinConfig {
-  players: NewPlayerSpec[];
-  /** ids that a local human is allowed to act for (1 in solo/bot mode, all in hotseat) */
+export interface OdinTableViewProps {
+  state: GameState;
+  dispatch: (action: Action) => void;
+  /** ids that this browser/session is allowed to act for (1 in solo/bot/online, all in hotseat) */
   controlledIds: string[];
   /** id whose result is recorded against the site profile */
   primaryId: string;
-  scoreLimit: number;
   botDifficulty: BotDifficulty;
-}
-
-export function OdinTable({
-  config,
-  onExit,
-  onGameOver,
-}: {
-  config: OdinConfig;
   onExit: () => void;
   onGameOver: (result: { won: boolean; score: number }) => void;
-}) {
-  const [state, dispatch] = useReducer(odinReducer, undefined, () =>
-    initGame(config.players, config.scoreLimit)
-  );
-  const reportedRef = useRef(false);
+}
 
-  const primary = state.players.find((p) => p.id === config.primaryId)!;
+/** Pure presentational table — sourced from either a local reducer or a synced online room. */
+export function OdinTableView({
+  state,
+  dispatch,
+  controlledIds,
+  primaryId,
+  botDifficulty,
+  onExit,
+  onGameOver,
+}: OdinTableViewProps) {
+  const reportedRef = useRef(false);
+  const primary = state.players.find((p) => p.id === primaryId) ?? state.players[0];
 
   useEffect(() => {
     if (state.phase === "awaiting-take" && state.pendingTake) {
@@ -52,7 +52,7 @@ export function OdinTable({
       const current = state.players.find((p) => p.id === currentId);
       if (current && current.kind === "bot") {
         const t = setTimeout(() => {
-          const decision = botDecide(state, current.id, config.botDifficulty);
+          const decision = botDecide(state, current.id, botDifficulty);
           if (decision.action === "pass") {
             dispatch({ type: "PASS", playerId: current.id });
           } else {
@@ -62,21 +62,21 @@ export function OdinTable({
         return () => clearTimeout(t);
       }
     }
-  }, [state, config.botDifficulty]);
+  }, [state, dispatch, botDifficulty]);
 
   useEffect(() => {
     if (state.phase === "game-over" && !reportedRef.current) {
       reportedRef.current = true;
-      onGameOver({ won: state.gameWinnerId === config.primaryId, score: primary.totalScore });
+      onGameOver({ won: state.gameWinnerId === primaryId, score: primary.totalScore });
     }
-  }, [state.phase, state.gameWinnerId, config.primaryId, primary.totalScore, onGameOver]);
+  }, [state.phase, state.gameWinnerId, primaryId, primary.totalScore, onGameOver]);
 
   const currentActorId =
     state.phase === "awaiting-take"
       ? state.pendingTake?.forPlayerId
       : state.turnOrder[state.activeIndex];
 
-  const actorIsControlled = !!currentActorId && config.controlledIds.includes(currentActorId);
+  const actorIsControlled = !!currentActorId && controlledIds.includes(currentActorId);
   const seatedPlayer = actorIsControlled
     ? state.players.find((p) => p.id === currentActorId)!
     : primary;
@@ -227,7 +227,7 @@ export function OdinTable({
         <div className={styles.overlay}>
           <div className={styles.panel}>
             <h2 className={styles.panelTitle}>
-              {state.gameWinnerId === config.primaryId ? "Kau Merebut Valhalla!" : "Permainan Usai"}
+              {state.gameWinnerId === primaryId ? "Kau Merebut Valhalla!" : "Permainan Usai"}
             </h2>
             <p>{state.players.find((p) => p.id === state.gameWinnerId)?.name} menang dengan skor paling rendah.</p>
             <table className={styles.scoreTable}>

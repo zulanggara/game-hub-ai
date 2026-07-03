@@ -1,0 +1,242 @@
+import { useEffect, useState } from "react";
+import { useProfile } from "../../../lib/profile";
+import { isFirebaseConfigured } from "../../../lib/firebase";
+import {
+  createRoom,
+  getClientId,
+  joinRoom,
+  leaveRoomLobby,
+  startRoomGame,
+  subscribeRoom,
+  type RoomDoc,
+} from "../online/room";
+import type { NewPlayerSpec } from "../engine/reducer";
+import { OnlineOdinTable } from "./OnlineOdinTable";
+import styles from "./OdinRoomLobby.module.css";
+
+type Mode = "menu" | "create" | "join";
+
+export function OdinRoomLobby({
+  onExit,
+  onGameOver,
+}: {
+  onExit: () => void;
+  onGameOver: (result: { won: boolean; score: number }) => void;
+}) {
+  const { username } = useProfile();
+  const clientId = getClientId();
+
+  const [mode, setMode] = useState<Mode>("menu");
+  const [roomCode, setRoomCode] = useState<string | null>(null);
+  const [room, setRoom] = useState<RoomDoc | null>(null);
+  const [joinInput, setJoinInput] = useState("");
+  const [scoreLimit, setScoreLimit] = useState(15);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!roomCode) return;
+    return subscribeRoom(roomCode, setRoom);
+  }, [roomCode]);
+
+  if (!isFirebaseConfigured) {
+    return (
+      <div className={styles.wrap}>
+        <div className={styles.panel}>
+          <h2 className={styles.title}>Room Online Belum Aktif</h2>
+          <p className={styles.subtitle}>
+            Fitur ini butuh backend Firebase yang belum dikonfigurasi di proyek ini. Buat
+            project Firebase (gratis), aktifkan Realtime Database, lalu isi kredensialnya
+            di file <code>.env.local</code> — lihat <code>.env.example</code> untuk daftar
+            variabel yang dibutuhkan. Setelah itu restart <code>npm run dev</code>.
+          </p>
+          <button className={styles.backBtn} onClick={onExit}>
+            ‹ Kembali
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  function handleExit() {
+    if (roomCode && room?.status === "lobby") {
+      leaveRoomLobby(roomCode).catch(() => {});
+    }
+    onExit();
+  }
+
+  async function handleCreate() {
+    setBusy(true);
+    setError(null);
+    try {
+      const code = await createRoom(username ?? "Tuan Rumah", scoreLimit);
+      setRoomCode(code);
+    } catch (e) {
+      setError((e as Error).message);
+    }
+    setBusy(false);
+  }
+
+  async function handleJoin() {
+    const code = joinInput.trim().toUpperCase();
+    if (code.length < 4) {
+      setError("Masukkan kode room yang valid.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      await joinRoom(code, username ?? "Pemain");
+      setRoomCode(code);
+    } catch (e) {
+      setError((e as Error).message);
+    }
+    setBusy(false);
+  }
+
+  async function handleStart() {
+    if (!roomCode || !room) return;
+    const players = Object.entries(room.players ?? {}).sort((a, b) => a[1].seat - b[1].seat);
+    const specs: NewPlayerSpec[] = players.map(([id, p]) => ({
+      id,
+      name: p.name,
+      kind: "human",
+    }));
+    setBusy(true);
+    try {
+      await startRoomGame(roomCode, specs, room.scoreLimit);
+    } catch (e) {
+      setError((e as Error).message);
+    }
+    setBusy(false);
+  }
+
+  if (roomCode && room?.status === "playing" && room.state) {
+    return (
+      <OnlineOdinTable
+        roomCode={roomCode}
+        primaryId={clientId}
+        onExit={handleExit}
+        onGameOver={onGameOver}
+      />
+    );
+  }
+
+  if (roomCode && room) {
+    const players = Object.entries(room.players ?? {}).sort((a, b) => a[1].seat - b[1].seat);
+    const isHost = room.hostId === clientId;
+
+    return (
+      <div className={styles.wrap}>
+        <div className={styles.panel}>
+          <h2 className={styles.title}>Ruang Tunggu</h2>
+          <div className={styles.codeDisplay}>
+            <span className={styles.codeValue}>{roomCode}</span>
+            <p className={styles.codeHint}>Bagikan kode ini ke teman untuk bergabung.</p>
+            <button
+              className={styles.copyBtn}
+              onClick={() => navigator.clipboard?.writeText(roomCode)}
+            >
+              Salin Kode
+            </button>
+          </div>
+
+          {error && <p className={styles.error}>{error}</p>}
+
+          <ul className={styles.playerList}>
+            {players.map(([id, p]) => (
+              <li key={id} className={styles.playerRow}>
+                {p.name}
+                {id === room.hostId && <span className={styles.hostTag}>Host</span>}
+              </li>
+            ))}
+          </ul>
+
+          {isHost ? (
+            <>
+              <button
+                className={styles.primaryBtn}
+                disabled={players.length < 2 || busy}
+                onClick={handleStart}
+              >
+                {players.length < 2 ? "Menunggu pemain lain..." : "Mulai Permainan →"}
+              </button>
+              <p className={styles.waitNote}>Minimal 2 pemain, maksimal 6.</p>
+            </>
+          ) : (
+            <p className={styles.waitNote}>Menunggu host memulai permainan...</p>
+          )}
+
+          <button className={styles.backBtn} onClick={handleExit}>
+            ‹ Keluar dari Room
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.wrap}>
+      <div className={styles.panel}>
+        <h2 className={styles.title}>Room Online</h2>
+        <p className={styles.subtitle}>
+          Main lintas perangkat dengan teman lewat kode room — tidak perlu satu ruangan.
+        </p>
+
+        {error && <p className={styles.error}>{error}</p>}
+
+        {mode === "menu" && (
+          <div className={styles.menuRow}>
+            <button className={styles.choiceBtn} onClick={() => setMode("create")}>
+              Buat Room Baru
+            </button>
+            <button className={styles.choiceBtn} onClick={() => setMode("join")}>
+              Gabung dengan Kode
+            </button>
+          </div>
+        )}
+
+        {mode === "create" && (
+          <>
+            <div className={styles.field}>
+              <span className={styles.label}>Batas Skor</span>
+              <input
+                className={styles.input}
+                type="number"
+                min={5}
+                max={30}
+                value={scoreLimit}
+                onChange={(e) => setScoreLimit(Number(e.target.value))}
+              />
+            </div>
+            <button className={styles.primaryBtn} disabled={busy} onClick={handleCreate}>
+              {busy ? "Membuat room..." : "Buat Room →"}
+            </button>
+          </>
+        )}
+
+        {mode === "join" && (
+          <>
+            <div className={styles.field}>
+              <span className={styles.label}>Kode Room</span>
+              <input
+                className={`${styles.input} ${styles.codeInput}`}
+                maxLength={6}
+                placeholder="ABC123"
+                value={joinInput}
+                onChange={(e) => setJoinInput(e.target.value)}
+              />
+            </div>
+            <button className={styles.primaryBtn} disabled={busy} onClick={handleJoin}>
+              {busy ? "Bergabung..." : "Gabung Room →"}
+            </button>
+          </>
+        )}
+
+        <button className={styles.backBtn} onClick={mode === "menu" ? onExit : () => setMode("menu")}>
+          ‹ Kembali
+        </button>
+      </div>
+    </div>
+  );
+}

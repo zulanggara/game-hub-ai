@@ -1,21 +1,42 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { OdinSetup } from "./components/OdinSetup";
-import { OdinTable, type OdinConfig } from "./components/OdinTable";
+import { LocalOdinTable, type OdinConfig } from "./components/LocalOdinTable";
+import { OdinRoomLobby } from "./components/OdinRoomLobby";
 import { useProfile } from "../../lib/profile";
 
+type Stage = "setup" | "local" | "online";
+
 export function OdinPage() {
+  const [stage, setStage] = useState<Stage>("setup");
   const [config, setConfig] = useState<OdinConfig | null>(null);
   const { recordResult } = useProfile();
   const navigate = useNavigate();
 
-  if (!config) {
-    return <OdinSetup onStart={setConfig} />;
+  if (stage === "setup") {
+    return (
+      <OdinSetup
+        onStart={(c) => {
+          setConfig(c);
+          setStage("local");
+        }}
+        onStartOnline={() => setStage("online")}
+      />
+    );
+  }
+
+  if (stage === "online") {
+    return (
+      <OdinRoomLobby
+        onExit={() => setStage("setup")}
+        onGameOver={(result) => recordResult("odin", result)}
+      />
+    );
   }
 
   return (
-    <OdinTable
-      config={config}
+    <LocalOdinTable
+      config={config!}
       onExit={() => navigate("/")}
       onGameOver={(result) => recordResult("odin", result)}
     />
