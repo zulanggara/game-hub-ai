@@ -167,3 +167,15 @@ export async function leaveRoomLobby(code: string): Promise<void> {
   const db = getRoomDatabase();
   await remove(ref(db, `rooms/${code}/players/${getClientId()}`));
 }
+
+/**
+ * Realtime Database has no built-in TTL/auto-expiry — a room lives forever
+ * unless something deletes it. There's no server-side sweep here (that
+ * needs a scheduled Cloud Function, which needs a billing-enabled Firebase
+ * project), so we opportunistically delete rooms once they're no longer
+ * useful: when someone leaves after the game has actually finished.
+ */
+export async function deleteRoom(code: string): Promise<void> {
+  const db = getRoomDatabase();
+  await remove(ref(db, `rooms/${code}`));
+}

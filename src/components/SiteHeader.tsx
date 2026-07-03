@@ -66,7 +66,7 @@ export function SiteHeader() {
     <header className={styles.header}>
       <Link to="/" className={styles.brand}>
         <RuneMark />
-        <span>
+        <span className={styles.brandTextGroup}>
           <span className={styles.brandText}>Hall of Games</span>
           <span className={styles.brandSub}>Norse Tabletop Arena</span>
         </span>

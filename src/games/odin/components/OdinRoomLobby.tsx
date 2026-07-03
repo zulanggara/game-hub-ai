@@ -3,6 +3,7 @@ import { useProfile } from "../../../lib/profile";
 import { isFirebaseConfigured } from "../../../lib/firebase";
 import {
   createRoom,
+  deleteRoom,
   getClientId,
   joinRoom,
   leaveRoomLobby,
@@ -92,6 +93,10 @@ export function OdinRoomLobby({
   function handleExit() {
     if (roomCode && room?.status === "lobby") {
       leaveRoomLobby(roomCode).catch(() => {});
+    } else if (roomCode && room?.state?.phase === "game-over") {
+      // No TTL on Realtime Database — clean up finished rooms ourselves
+      // instead of leaving them behind forever.
+      deleteRoom(roomCode).catch(() => {});
     }
     onExit();
   }

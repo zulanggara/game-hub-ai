@@ -1,8 +1,8 @@
 .card {
   --hue: var(--card-hue, 40);
   position: relative;
-  width: 68px;
-  height: 96px;
+  width: clamp(48px, 15vw, 68px);
+  height: clamp(68px, 21.3vw, 96px);
   border-radius: 8px;
   background: linear-gradient(160deg, var(--card-a), var(--card-b));
   border: 1px solid #00000055;
@@ -30,14 +30,14 @@
 .number {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 1.7rem;
+  font-size: clamp(1.15rem, 4.5vw, 1.7rem);
   line-height: 1;
 }
 
 .rune {
   position: absolute;
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: clamp(0.5rem, 1.8vw, 0.6rem);
   opacity: 0.55;
 }
 
@@ -70,14 +70,14 @@
   position: absolute;
   top: -8px;
   right: -8px;
-  width: 22px;
-  height: 22px;
+  width: clamp(17px, 5vw, 22px);
+  height: clamp(17px, 5vw, 22px);
   border-radius: 50%;
   background: var(--gold-hi);
   color: #1a1406;
   font-family: var(--font-mono);
   font-weight: 800;
-  font-size: 0.72rem;
+  font-size: clamp(0.58rem, 2vw, 0.72rem);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,8 +85,8 @@
 }
 
 .back {
-  width: 68px;
-  height: 96px;
+  width: clamp(48px, 15vw, 68px);
+  height: clamp(68px, 21.3vw, 96px);
   border-radius: 8px;
   background:
     repeating-linear-gradient(45deg, #17131a, #17131a 6px, #1d1824 6px, #1d1824 12px);
