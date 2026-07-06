@@ -25,6 +25,20 @@ Urutan disusun kronologis sesuai percakapan aslinya.
 | 12 | [12-research-sekata.md](12-research-sekata.md) | Riset aturan Sekata (belum dieksekusi) |
 | 13 | [13-research-bookshelf-feasibility.md](13-research-bookshelf-feasibility.md) | Riset Bookshelf + diskusi kelayakan digitalisasi |
 | 14 | [14-build-bookshelf-proxy-mechanic.md](14-build-bookshelf-proxy-mechanic.md) | Rancang & bangun Bookshelf dengan mekanik proxy (game ketiga) |
+| 15 | [15-fix-tacta-card-shapes.md](15-fix-tacta-card-shapes.md) | Perbaikan: bentuk kartu Tacta dibuat sesuai game aslinya |
+
+## Aturan tetap folder ini
+
+Mulai tahap 15, setiap prompt baru dari user **wajib** direkam di sini:
+
+- **Perbaikan/penyesuaian kecil** pada fitur yang sudah ada → tambahkan
+  sebagai file tahap baru bernomor urut berikutnya (jangan diedit balik ke
+  file tahap lama — riwayatnya harus tetap kronologis & apa adanya).
+- **Fitur/game baru** → juga jadi file tahap baru bernomor urut berikutnya.
+- Setiap file baru **wajib** ditambahkan ke tabel indeks di atas.
+- Format tiap file: judul tahap, kutipan prompt asli user, konteks singkat,
+  apa yang dikerjakan, dan hasil verifikasi — mengikuti format file-file
+  sebelumnya di folder ini.
 
 ## Pola yang konsisten di tiap game baru
 
