@@ -1,0 +1,102 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.stabilityRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 420px;
+}
+
+.stabilityLabel {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.stabilityBar {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.stabilityFill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.towerScroll {
+  width: 100%;
+  max-height: 260px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--bg-raised);
+}
+
+.cat {
+  font-size: 1.3rem;
+}
+
+.shelfRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 8px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  width: 100%;
+  max-width: 360px;
+}
+
+.shelfIndex {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--ink-faint);
+  min-width: 2.2ch;
+}
+
+.shelfBooks {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+}
+
+.book {
+  width: 9px;
+  height: 18px;
+  border-radius: 2px;
+}
+
+.qualityTag {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-faint);
+}
+
+.emptyNote {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  padding: 1rem;
+}

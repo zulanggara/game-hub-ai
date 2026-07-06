@@ -1,0 +1,64 @@
+.card {
+  width: clamp(90px, 24vw, 130px);
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-panel);
+  padding: 0.6rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.card.interactive:hover {
+  transform: translateY(-4px);
+  border-color: var(--gold);
+}
+
+.card.static {
+  cursor: default;
+}
+
+.levelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.levelLabel {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.levelDots {
+  display: flex;
+  gap: 3px;
+}
+
+.levelDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line-strong);
+}
+
+.levelDot.filled {
+  background: var(--gold);
+}
+
+.books {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 34px;
+  align-items: flex-end;
+}
+
+.book {
+  width: 12px;
+  border-radius: 2px 2px 0 0;
+}

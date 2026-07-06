@@ -1,0 +1,161 @@
+.table {
+  position: relative;
+  min-height: calc(100vh - 64px);
+  min-height: calc(100dvh - 64px);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 1rem;
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem clamp(1rem, 4vw, 2.5rem) 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.quitLink {
+  color: var(--ink-faint);
+  border: 1px solid var(--line);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+}
+
+.players {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+}
+
+.playerChip {
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-panel);
+}
+
+.playerChip.active {
+  border-color: var(--gold);
+  color: var(--gold-hi);
+}
+
+.center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1rem 1.5rem;
+  min-height: 0;
+}
+
+.turnBanner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-display-game);
+  font-weight: 700;
+  font-size: clamp(1rem, 2.2vw, 1.3rem);
+  color: var(--gold-hi);
+}
+
+.turnBannerYou {
+  color: #1f130a;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+}
+
+.choiceRow {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.log {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  max-height: 72px;
+  overflow-y: auto;
+  margin: 0 auto;
+  max-width: 720px;
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink);
+  background: var(--bg-panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  padding: 2rem clamp(1.5rem, 5vw, 3rem);
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-deep), var(--shadow-gold);
+}
+
+.panelTitle {
+  font-family: var(--font-display-game);
+  font-size: 1.8rem;
+  color: var(--gold-hi);
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .topBar {
+    padding: 0.6rem 0.9rem 0;
+    font-size: 0.62rem;
+  }
+
+  .choiceRow {
+    gap: 0.75rem;
+  }
+
+  .overlay {
+    padding: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .panel {
+    padding: 1.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    max-height: 85vh;
+    overflow-y: auto;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .panelTitle {
+    font-size: 1.4rem;
+  }
+}

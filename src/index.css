@@ -90,6 +90,25 @@
   --bg-glow-b: #dce4f2;
 }
 
+:root[data-game="bookshelf"] {
+  --gold: #e6b45c;
+  --gold-hi: #f7d38f;
+  --gold-dim: #a8763a;
+  --line-strong: #e6b45c55;
+  --bg-glow-a: #2b1f14;
+  --bg-glow-b: #241a2a;
+  --font-display-game: "Fraunces", var(--font-display);
+}
+
+:root[data-theme="light"][data-game="bookshelf"] {
+  --gold: #a8763a;
+  --gold-hi: #8a5d26;
+  --gold-dim: #d9a75f;
+  --line-strong: #a8763a55;
+  --bg-glow-a: #f2e4cc;
+  --bg-glow-b: #ecdad8;
+}
+
 :root {
   --font-display: "Cinzel", "Marcellus", serif;
   --font-display-game: var(--font-display);
