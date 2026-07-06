@@ -1,45 +1,73 @@
 .card {
   position: relative;
-  width: clamp(46px, 12vw, 64px);
-  height: clamp(46px, 12vw, 64px);
-  border-radius: 8px;
-  background: linear-gradient(160deg, var(--card-a), var(--card-b));
-  border: 1px solid #00000055;
-  box-shadow: 0 4px 10px -4px #000000aa, inset 0 0 0 1px #ffffff14;
+  width: clamp(52px, 14vw, 70px);
+  height: clamp(52px, 14vw, 70px);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #100d05;
   flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
 }
 
 .card.interactive {
   cursor: pointer;
 }
 
-.card.dim {
+.card.dim .shapeFill {
   filter: saturate(0.4) brightness(0.6);
 }
 
-.value {
+.shapeFill {
   position: absolute;
-  bottom: 3px;
-  right: 5px;
-  font-family: var(--font-mono);
-  font-weight: 800;
-  font-size: clamp(0.6rem, 2.2vw, 0.75rem);
-  color: #100d05;
+  inset: 3%;
+  background: linear-gradient(160deg, var(--card-a), var(--card-b));
+  box-shadow: 0 4px 10px -4px #000000aa, inset 0 0 0 1px #ffffff22;
+  border: 2px solid #00000055;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
 }
 
-.shape svg {
-  width: 55%;
-  height: 55%;
+.card.interactive:hover .shapeFill {
+  transform: scale(1.06);
+}
+
+.shapeFill.square {
+  border-radius: 6px;
+}
+
+.shapeFill.circle {
+  inset: 0;
+  border-radius: 50%;
+}
+
+.shapeFill.triangle {
+  inset: 0;
+  clip-path: polygon(50% 4%, 96% 94%, 4% 94%);
+}
+
+.value {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: clamp(0.85rem, 3.2vw, 1.15rem);
+  color: #100d05;
+  text-shadow: 0 1px 0 #ffffff44;
+}
+
+.shapeFill.triangle .value {
+  margin-top: 14%;
 }
 
 .stackBadge {
   position: absolute;
   top: -6px;
   left: -6px;
+  z-index: 2;
   min-width: 16px;
   height: 16px;
   padding: 0 3px;

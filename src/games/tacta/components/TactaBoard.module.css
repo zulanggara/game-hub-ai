@@ -1,5 +1,5 @@
 .wrap {
-  --cell: clamp(48px, 13vw, 66px);
+  --cell: clamp(56px, 15vw, 76px);
   width: 100%;
   max-width: 100%;
   overflow: auto;
